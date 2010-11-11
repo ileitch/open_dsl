@@ -15,14 +15,6 @@ module OpenDsl
       @stack.pop
     end
 
-    def push(object)
-      @stack.push(object)
-    end
-
-    def pop
-      @stack.pop
-    end
-
     def bottom
       @stack.last
     end

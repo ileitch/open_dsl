@@ -3,46 +3,40 @@ module OpenDsl
     include StringHelpers
     attr_reader :toplevel_object
 
-    def initialize(const_name, attrs = nil, &blk)
+    def initialize(const_name, &blk)
       raise "Expected a constant name starting with an upper-case character, got '#{const_name}'" unless constant_or_constant_name?(const_name)
       @toplevel_object = new_instance(const_name)
       @stack = EvalStack.new(self)
       @stack.eval_and_keep(@toplevel_object, &blk)
-      assign_attributes_from_hash(const_name, attrs)
     end
 
     protected
 
-    def method_missing(meth, *args, &blk)
+    def method_missing(name, *args, &blk)
       # TODO: detect an internal error?
-      assign_or_define_attribute(meth, args.first, args[1], &blk)
-    end
 
-    def assign_or_define_attribute(name, value_or_hash, hash, &blk)
+      value = args.first
       if constant_or_constant_name?(name)
-        assign_constant(name, value_or_hash, &blk)
-      elsif blk && constant_or_constant_name?(value_or_hash) && !hash
-        assign_constant_to_explicit_attribute(name, value_or_hash, &blk)
-      elsif blk && constant_or_constant_name?(value_or_hash) && hash
-        assign_constant_to_explicit_attribute_with_hash_and_block(name, value_or_hash, hash, &blk)
-      elsif !blk && constant_or_constant_name?(value_or_hash) && hash
-        assign_constant_to_explicit_attribute_with_hash_and_without_block(name, value_or_hash, hash)
+        assign_constant(name, &blk)
       elsif blk
-        if plural?(name)
-          assign_collection(name, &blk)
+        if constant_or_constant_name?(value)
+          assign_constant_to_explicit_attribute(name, value, &blk)
         else
-          assign_attribute_with_block(name, value_or_hash, &blk)
+          if plural?(name)
+            assign_collection(name, &blk)
+          else
+            assign_attribute_with_block(name, &blk)
+          end
         end
       else
-        assign_attribute(name, value_or_hash)
+        assign_attribute(name, value)
       end
     end
 
-    def assign_constant(name, attrs, &blk)
+    def assign_constant(name, &blk)
       instance = new_instance(name)
       assign_attribute(attribute_name(name), instance)
       @stack.eval(instance, &blk)
-      assign_attributes_from_hash(name, attrs)
     end
 
     def assign_constant_to_explicit_attribute(name, const, &blk)
@@ -51,34 +45,10 @@ module OpenDsl
       @stack.eval(instance, &blk)
     end
 
-    def assign_constant_to_explicit_attribute_with_hash_and_block(name, const, hash, &blk)
-      instance = new_instance(const)
-      assign_attribute(name, instance)
-      @stack.eval_and_keep(instance, &blk)
-      assign_attributes_from_hash(name, hash)
-      @stack.pop
-    end
-
-    def assign_constant_to_explicit_attribute_with_hash_and_without_block(name, const, hash)
-      instance = new_instance(const)
-      assign_attribute(name, instance)
-      @stack.push(instance)
-      assign_attributes_from_hash(name, hash)
-      @stack.pop
-    end
-
-    def assign_attributes_from_hash(current_name, hash)
-      return unless hash
-      raise "Expected parameter passed to '#{current_name}' to be a Hash, got #{hash.inspect}" unless hash.is_a?(Hash)
-      hash.each { |name, value| assign_attribute(name, value) }
-    end
-
-    def assign_attribute_with_block(name, hash, &blk)
+    def assign_attribute_with_block(name, &blk)
       struct = OpenStruct.new
       assign_attribute(name, struct)
-      @stack.eval_and_keep(struct, &blk)
-      assign_attributes_from_hash(name, hash)
-      @stack.pop
+      @stack.eval(struct, &blk)
     end
 
     def assign_collection(name, &blk)

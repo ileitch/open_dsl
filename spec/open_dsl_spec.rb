@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe OpenDsl do
-
   it "should raise an error if the context object name does not start with an uppercase character" do
     expect do
       open_dsl do
@@ -123,87 +122,6 @@ describe OpenDsl do
     object.name.should == "Weee"
   end
 
-  it "should assign attributes passed in as a hash to a constant" do
-    object = open_dsl do
-      MyClass8 :name => "foo", :description => "bar" do
-      end
-    end
-
-    object.name.should == "foo"
-    object.description.should == "bar"
-  end
-
-  it "should assign attributes passed in as a hash to an OpenStruct" do
-    object = open_dsl do
-      MyClass9 do
-        something :name => "foo", :description => "bar" do
-        end
-      end
-    end
-
-    object.something.name.should == "foo"
-    object.something.description.should == "bar"
-  end
-
-  it "should not assign a hash as individual attributes if a block isn't provided" do
-    object = open_dsl do
-      MyClass10 do
-        something :name => "foo", :description => "bar"
-      end
-    end
-
-    object.something.should == {:name => "foo", :description => "bar" }
-  end
-
-  it "should raise an error if a single value is passed as an argument to a constant" do
-    expect do
-      object = open_dsl do
-        MyClass11 :weee do
-        end
-      end
-    end.should raise_error("Expected parameter passed to 'MyClass11' to be a Hash, got :weee")
-  end
-
-  it "should raise an error if a single value is passed as an argument to an OpenStruct" do
-    expect do
-      object = open_dsl do
-        MyClass12 do
-          something :weeee do
-          end
-        end
-      end
-    end.should raise_error("Expected parameter passed to 'something' to be a Hash, got :weeee")
-  end
-
-  it "should pass a 2nd parameter which is hash of attributes to assign when using an explicit attribute name for a constant" do
-    class NotWeird1
-    end
-
-    object = open_dsl do
-      MyClass13 do
-        weird(NotWeird1, :name => "foo", :description => "bar") do
-        end
-      end
-    end
-
-    object.weird.name.should == "foo"
-    object.weird.description.should == "bar"
-  end
-
-  it "should assign a constant to an explicit attribute name with attributes passed in as a hash without a block" do
-    class NotWeird2
-    end
-
-    object = open_dsl do
-      MyClass14 do
-        weird(NotWeird2, :name => "foo", :description => "bar")
-      end
-    end
-
-    object.weird.name.should == "foo"
-    object.weird.description.should == "bar"
-  end
-
   it "should treat plural attributes as collections" do
     object = open_dsl do
       MyClass15 do
@@ -221,5 +139,29 @@ describe OpenDsl do
 
     object.things.find {|a| a.kind_of?(OpenStruct)}.name.should == "boobies"
     object.things.find {|a| a.class.name == 'Thing'}.name.should == "hi mom"
+  end
+
+  it "should work with the example from the README" do
+    object = open_dsl do
+      Finance do
+        tax do
+          rate "17.5%"
+        end
+
+        accounts do
+          Account do
+            name "earnings"
+            withdrawal_limit 100_00
+          end
+
+          Account do
+            name "deposits"
+            withdrawal_limit 0
+          end
+        end
+      end
+    end
+
+    object.tax.rate.should == "17.5%"
   end
 end

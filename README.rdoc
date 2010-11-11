@@ -1,6 +1,6 @@
 = Open DSL
 
-Open DSL is a DSL (Domain Specific Language) builder which aims to provide highly a readable DSL and the flexibility to integrate with existing Classes in your system. Open DSL uses OpenStructs internally when creating collections of attributes.. hence the name :)
+Open DSL is a DSL (Domain Specific Language) builder which aims to provide a highly readable DSL and the flexibility to integrate with existing Classes in your system. Open DSL uses OpenStructs internally when creating collections of attributes.. hence the name :)
 
 == Basic Example
 
@@ -31,24 +31,28 @@ In the case of Account, the class instance is assigned to the Finance instance w
 == Installing & Usage
 
     gem install open_dsl
-    
+
+    require 'rubygems'
     require 'open_dsl'
 
     open_dsl do
     end
-
-    or
-    
+or
     OpenDsl::Builder.build do
     end
 
 == Advanced Examples
 
-
 === Explicit Attribute Names for Existing Classes
 
-If you 
+If you have an existing class but like to assign it to an attribute with a different name or Open DSL fails to infer a nice name for it, you can explicity specify a name:
 
+    open_dsl do
+        configuration(MyConfigurationClass) do
+            value_1 "foo"
+            value_2 "bar"
+        end
+    end
 
 Coming soon!
 

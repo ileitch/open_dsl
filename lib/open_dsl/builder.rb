@@ -29,7 +29,7 @@ module OpenDsl
     end
 
     def method_missing(const_name, *args, &blk)
-      @context = Context.new(const_name, *args, &blk)
+      @context = Context.new(const_name, &blk)
     end
   end
 end
