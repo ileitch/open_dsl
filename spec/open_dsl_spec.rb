@@ -173,10 +173,26 @@ describe OpenDsl do
     expect do
       open_dsl do
         MyExistingClass do
-          something do
-          end
+          something "foo"
         end
       end
     end.should raise_error("Expected MyExistingClass to have defined a setter method for 'something'")
+  end
+
+  it "should not pass true to the setter if no attribute value given" do
+    class MyExistingClass1
+      def something=(value)
+      end
+    end
+
+    instance = MyExistingClass1.new
+    MyExistingClass1.stub!(:new).and_return(instance)
+    instance.should_receive(:something=).with(true)
+
+    open_dsl do
+      MyExistingClass1 do
+        something
+      end
+    end
   end
 end

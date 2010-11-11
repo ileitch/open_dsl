@@ -66,12 +66,16 @@ module OpenDsl
         @stack.bottom << value
       else
         define_getter_and_setter_if_needed(name)
-        @stack.bottom.send("#{name}=", value)
+        if @toplevel_object_already_exists && value.nil?
+          @stack.bottom.send("#{name}=", true)
+        else
+          @stack.bottom.send("#{name}=", value)
+        end
       end
     end
 
     def define_getter_and_setter_if_needed(name)
-      return if name.respond_to?("#{name}=")
+      return if @stack.bottom.respond_to?("#{name}=")
       raise "Expected #{@toplevel_object.class.name} to have defined a setter method for '#{name}'" if @toplevel_object_already_exists
 
       @stack.bottom.class.instance_eval do
