@@ -8,7 +8,7 @@ require 'open_dsl/context'
 require 'open_dsl/eval_stack'
 
 module OpenDsl
-  VERSION = '0.3'
+  VERSION = '0.3.1'
 end
 
 def open_dsl(&blk)
