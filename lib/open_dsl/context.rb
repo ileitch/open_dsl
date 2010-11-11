@@ -4,9 +4,12 @@ module OpenDsl
     attr_reader :toplevel_object
 
     def initialize(const_name, &blk)
-      raise "Expected a constant name starting with an upper-case character, got '#{const_name}'" unless constant_or_constant_name?(const_name)
-      @toplevel_object = new_instance(const_name)
       @stack = EvalStack.new(self)
+      if constant_or_constant_name?(const_name)
+        @toplevel_object = new_instance(const_name)
+      else
+        @toplevel_object = Array.new
+      end
       @stack.eval_and_keep(@toplevel_object, &blk)
     end
 

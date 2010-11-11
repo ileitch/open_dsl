@@ -1,15 +1,6 @@
 require 'spec_helper'
 
 describe OpenDsl do
-  it "should raise an error if the context object name does not start with an uppercase character" do
-    expect do
-      open_dsl do
-        foo do
-        end
-      end
-    end.should raise_error("Expected a constant name starting with an upper-case character, got 'foo'")
-  end
-
   it "should define new classes on Object" do
     open_dsl do
       MyClass1 do
@@ -27,6 +18,16 @@ describe OpenDsl do
     end
 
     object.class.name.should == "MyClass2"
+  end
+
+  it "should allow a collection to be the toplevel object" do
+    things = open_dsl do
+      things do
+        thing_1 "weee"
+      end
+    end
+
+    things.first.should == "weee"
   end
 
   it "should return an instance of an existing class if a it exists" do
