@@ -1,0 +1,68 @@
+= Open DSL
+
+Open DSL is a DSL (Domain Specific Language) builder which aims to provide highly a readable DSL and the flexibility to integrate with existing Classes in your system. Open DSL uses OpenStructs internally when creating collections of attributes.. hence the name :)
+
+== Basic Example
+
+    open_dsl do
+        Finance do
+            tax do
+                rate "17.5%"
+            end
+        
+            accounts do
+                Account do
+                    name "earnings"
+                    withdrawal_limit 100_00
+                end
+            
+                Account do
+                    name "deposits"
+                    withdrawal_limit 0
+                end
+            end
+        end
+    end
+    
+Notice that Finance and Account start with an upper-case character, just like Ruby classes. This tells Open DSL that if an existing class with the same name exists then use it, otherwise a new class of that name will be created for you. This allows you to use Open DSL on classes that already exist in your system, the advantage of this is that you can use Open DSL as a way to configure a class whilst keeping business logic and functional code separate.
+
+In the case of Account, the class instance is assigned to the Finance instance with a name inferred from the Account class; an attribute named "account" is created which contains an instance of Account. "tax" will result in an OpenStruct being created and the "rate" attribute assigned. "accounts" is plural and therefore signifies an array containing each account.
+
+== Installing & Usage
+
+    gem install open_dsl
+    
+    require 'open_dsl'
+
+    open_dsl do
+    end
+
+    or
+    
+    OpenDsl::Builder.build do
+    end
+
+== Advanced Examples
+
+
+=== Explicit Attribute Names for Existing Classes
+
+If you 
+
+
+Coming soon!
+
+== Compatibility
+
+Tested with Ruby 1.8.7 only so far.
+
+== Contributions
+
+* Fork the project.
+* Make your feature addition or bug fix.
+* Add tests for it, specs live in the specs/ directory.
+* Commit and send me a pull request.
+
+== Copyright
+
+Copyright (c) 2010 Envato, Ian Leitch. See LICENSE for details.
