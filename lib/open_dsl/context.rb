@@ -6,6 +6,7 @@ module OpenDsl
     def initialize(const_name, &blk)
       @stack = EvalStack.new(self)
       if constant_or_constant_name?(const_name)
+        @toplevel_object_already_exists = existing_class?(const_name)
         @toplevel_object = new_instance(const_name)
       else
         @toplevel_object = Array.new
@@ -71,6 +72,7 @@ module OpenDsl
 
     def define_getter_and_setter_if_needed(name)
       return if name.respond_to?("#{name}=")
+      raise "Expected #{@toplevel_object.class.name} to have defined a setter method for '#{name}'" if @toplevel_object_already_exists
 
       @stack.bottom.class.instance_eval do
         define_method("#{name}=") do |value|
@@ -85,6 +87,11 @@ module OpenDsl
 
     def new_instance(const_name)
       get_or_define_const(const_name).new
+    end
+
+    def existing_class?(name_or_const)
+      return true if name_or_const.is_a?(Class)
+      Object.const_defined?(name_or_const)
     end
 
     def get_or_define_const(name_or_const)

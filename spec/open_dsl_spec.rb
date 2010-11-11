@@ -165,4 +165,18 @@ describe OpenDsl do
 
     object.tax.rate.should == "17.5%"
   end
+
+  it "should raise an error if an existing class doesn't already have a setter defined" do
+    class MyExistingClass
+    end
+
+    expect do
+      open_dsl do
+        MyExistingClass do
+          something do
+          end
+        end
+      end
+    end.should raise_error("Expected MyExistingClass to have defined a setter method for 'something'")
+  end
 end
