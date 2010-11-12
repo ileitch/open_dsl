@@ -79,6 +79,13 @@ describe OpenDsl do
 
   it "should assign a class instance to an attribute inferred from the class name" do
     class MyConfigClass1
+      def stuff=(stuff)
+        @stuff = stuff
+      end
+
+      def stuff
+        @stuff
+      end
     end
 
     object = open_dsl do
@@ -97,6 +104,13 @@ describe OpenDsl do
 
   it "should assign a class instance to an explicit attribute name" do
     class MyConfigClass2
+      def stuff=(stuff)
+        @stuff = stuff
+      end
+
+      def stuff
+        @stuff
+      end
     end
 
     object = open_dsl do
