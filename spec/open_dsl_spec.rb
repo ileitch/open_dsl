@@ -195,4 +195,33 @@ describe OpenDsl do
       end
     end
   end
+
+  it "should work with multiple attribute values" do
+    class MyExistingClass2
+      def something=(first, second)
+      end
+    end
+
+    instance = MyExistingClass2.new
+    MyExistingClass2.stub!(:new).and_return(instance)
+    instance.should_receive(:something=).with(:first, :second)
+
+    open_dsl do
+      MyExistingClass2 do
+        something :first, :second
+      end
+    end
+  end
+
+  it "should assign an array of values if multiple attribute values are given" do
+    things = open_dsl do
+      things do
+        thing :one, :two, :three
+        thing :single
+      end
+    end
+
+    things.first.should == [:one, :two, :three]
+    things.last.should == :single
+  end
 end

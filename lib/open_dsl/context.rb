@@ -19,12 +19,11 @@ module OpenDsl
     def method_missing(name, *args, &blk)
       # TODO: detect an internal error?
 
-      value = args.first
       if constant_or_constant_name?(name)
         assign_constant(name, &blk)
       elsif blk
-        if constant_or_constant_name?(value)
-          assign_constant_to_explicit_attribute(name, value, &blk)
+        if constant_or_constant_name?(args.first)
+          assign_constant_to_explicit_attribute(name, args.first, &blk)
         else
           if plural?(name)
             assign_collection(name, &blk)
@@ -33,7 +32,7 @@ module OpenDsl
           end
         end
       else
-        assign_attribute(name, value)
+        assign_attribute(name, *args)
       end
     end
 
@@ -61,15 +60,15 @@ module OpenDsl
       @stack.eval(array, &blk)
     end
 
-    def assign_attribute(name, value)
+    def assign_attribute(name, *values)
       if @stack.bottom.kind_of?(Array)
-        @stack.bottom << value
+        @stack.bottom << (values.size == 1 ? values.first : values)
       else
         define_getter_and_setter_if_needed(name)
-        if @toplevel_object_already_exists && value.nil?
+        if @toplevel_object_already_exists && values.size == 0
           @stack.bottom.send("#{name}=", true)
         else
-          @stack.bottom.send("#{name}=", value)
+          @stack.bottom.send("#{name}=", *values)
         end
       end
     end
